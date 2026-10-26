@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inkcount — Word Counter, Character Counter and Readability Checker</title>
+<meta name="description" content="Free word counter with character count, reading time, keyword density, readability score and limits for tweets, SMS, LinkedIn and essays.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f1e6;--ink:#1d1a16;--mut:#6a645a;--card:#fffdf8;--line:#e3dac8;--hl:#ffd84d;--on:#1d1a16;--ok:#1c8a55;--warn:#d98a00;--bad:#d03a2b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13100d;--ink:#f3ede1;--mut:#a39a8a;--card:#1c1814;--line:#322b22;--ok:#4ed08a;--warn:#ffb937;--bad:#ff7a6b}}
+:root[data-theme="dark"]{--bg:#13100d;--ink:#f3ede1;--mut:#a39a8a;--card:#1c1814;--line:#322b22;--ok:#4ed08a;--warn:#ffb937;--bad:#ff7a6b}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 Inter,system-ui,sans-serif;min-height:100svh}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:60}
+h1,h2,h3,.f{font-family:Fraunces,Georgia,serif}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:22px 0 8px}
+.logo{font:800 28px Fraunces,serif;letter-spacing:-.03em}.logo span{background:var(--hl);color:var(--on);padding:0 .15em;border-radius:6px}
+.ib{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:99px;height:40px;padding:0 16px;font:600 14px Inter,sans-serif;cursor:pointer}
+.ib:hover{border-color:var(--ink)}
+.hero{padding:20px 0 26px}.hero h1{font-size:clamp(34px,6vw,64px);font-weight:800;letter-spacing:-.03em;line-height:1}.hero h1 em{font-style:normal;background:linear-gradient(transparent 60%,var(--hl) 60%)}
+.hero p{color:var(--mut);margin-top:12px;max-width:40em}
+.mini{display:none;position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--card);border-bottom:1px solid var(--line);padding:9px 20px;justify-content:space-around;font-size:14px}.mini b{font:800 18px Fraunces,serif}
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:18px;align-items:start;padding-bottom:60px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.t{background:var(--bg);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:7px 12px;font:600 13px Inter,sans-serif;cursor:pointer}.t:hover{background:var(--hl);color:var(--on);border-color:var(--hl)}
+.t.d:hover{background:var(--bad);color:#fff;border-color:var(--bad)}
+textarea{width:100%;min-height:min(56vh,480px);resize:vertical;background:transparent;border:0;color:var(--ink);font:400 19px/1.7 Fraunces,Georgia,serif;outline:none;padding:6px 4px}
+textarea::placeholder{color:var(--mut);opacity:.7}
+.foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--mut);font-size:13px;border-top:1px solid var(--line);padding-top:10px}
+.goal{margin-top:16px;border-top:1px solid var(--line);padding-top:16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{background:none;border:1.5px solid var(--line);color:var(--ink);border-radius:99px;padding:6px 14px;font:600 13px Inter,sans-serif;cursor:pointer}.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cg{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:14px;color:var(--mut)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}input[type=number]{width:110px}
+.pb{height:14px;border-radius:99px;background:var(--line);overflow:hidden}.pb i{display:block;height:100%;width:0;border-radius:99px;background:var(--ok);transition:width .3s,background .3s}
+.pb.w i{background:var(--warn)}.pb.x i{background:var(--bad)}
+.pt{margin-top:8px;font-size:14px;font-weight:600}
+.hero2{background:var(--ink);color:var(--bg);border-radius:22px;padding:22px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}
+.hero2 small{font-size:13px;opacity:.7;display:block}.hero2 b{font:800 clamp(56px,9vw,92px)/.9 Fraunces,serif;letter-spacing:-.04em}
+.hero2 div:last-child{text-align:right}.hero2 div:last-child b{font-size:34px}
+.st{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.st div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}.st small{display:block;color:var(--mut);font-size:12px}.st b{font:700 22px Fraunces,serif}
+.side h3{font-size:19px;margin-bottom:10px}
+.kw{display:grid;grid-template-columns:90px 1fr 28px;gap:8px;align-items:center;font-size:14px;margin:7px 0}.kw i{display:block;height:9px;border-radius:99px;background:var(--hl)}.kw span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.kw b{text-align:right}
+.rd{display:flex;align-items:center;gap:14px}.rd b{font:800 40px Fraunces,serif}.rd small{display:block;color:var(--mut)}
+.mt{color:var(--mut);font-size:14px}
+.hl{background:var(--hl);color:var(--on);padding:0 4px;border-radius:4px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,100px);background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:99px;font-size:14px;transition:transform .35s;z-index:70}.toast.s{transform:translate(-50%,0)}
+@media (max-width:900px){.grid{grid-template-columns:1fr}.mini{display:flex}textarea{min-height:42vh}}
+@media (prefers-reduced-motion:reduce){.pb i{transition:none}.toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="mini" aria-hidden="true"><span><b id="mw">0</b> words</span><span><b id="mc">0</b> characters</span></div>
+<div class="wrap">
+<div class="top"><div class="logo">Ink<span>count</span></div><div style="display:flex;gap:8px"><button class="ib" id="th" aria-label="Toggle theme">Theme</button></div></div>
+<div class="hero"><h1>Count every word. <em>Perfect every line.</em></h1><p>Type or paste your text. See words, characters, reading time, readability and top keywords instantly, with limits for tweets, SMS, LinkedIn and essays.</p></div>
+
+<div class="grid">
+<section class="card">
+<div class="tools" role="toolbar" aria-label="Text tools"><button class="t" data-a="up">UPPERCASE</button><button class="t" data-a="low">lowercase</button><button class="t" data-a="title">Title Case</button><button class="t" data-a="sent">Sentence case</button><button class="t" data-a="sp">Clean spaces</button><button class="t" data-a="undo">Undo</button><button class="t" data-a="copy">Copy</button><button class="t d" data-a="clear">Clear</button></div>
+<textarea id="tx" placeholder="Start typing or paste your text here…" aria-label="Your text" spellcheck="true"></textarea>
+<div class="foot"><span id="sv">Draft saves automatically in this browser</span><span id="ln"></span></div>
+<div class="goal"><div class="chips" id="pr" role="group" aria-label="Limit presets"></div>
+<div class="cg"><span>Custom goal</span><input id="gn" type="number" min="1" max="1000000" placeholder="e.g. 500" aria-label="Goal number"><select id="gt" aria-label="Goal type"><option value="words">words</option><option value="chars">characters</option></select></div>
+<div class="pb" id="pb"><i id="pf"></i></div><div class="pt" id="pt">Pick a preset or set a goal to track your limit.</div></div>
+</section>
+
+<aside class="side">
+<div class="hero2"><div><small>Words</small><b id="w">0</b></div><div><small>Characters</small><b id="c">0</b></div></div>
+<div class="st"><div><small>Characters (no spaces)</small><b id="cn">0</b></div><div><small>Sentences</small><b id="s">0</b></div><div><small>Paragraphs</small><b id="p">0</b></div><div><small>Unique words</small><b id="u">0</b></div><div><small>Reading time</small><b id="rt">0 sec</b></div><div><small>Speaking time</small><b id="sp">0 sec</b></div><div><small>Avg word length</small><b id="al">0</b></div><div><small>Longest word</small><b id="lw" style="font-size:16px;word-break:break-all">—</b></div></div>
+<div class="card" style="margin-bottom:14px"><h3>Readability</h3><div class="rd"><b id="fs">—</b><div><span id="fl">Write at least 10 words</span><small id="fn">Flesch reading ease, English text</small></div></div></div>
+<div class="card"><h3>Top keywords</h3><div id="kw" class="mt">Keywords appear as you type.</div></div>
+</aside>
+</div></div>
+<div class="toast" id="ts" role="status"></div>
+
+<script>
+const $=i=>document.getElementById(i),tx=$("tx");
+const STOP=new Set("the and for that with this from are was but not you your have has had they will all can its their than then them there been were which would about into our out his her she him who what when how also more just such these those some any one two".split(" "));
+const PRE=[["Tweet",280,"chars"],["LinkedIn post",3000,"chars"],["Meta description",160,"chars"],["SMS",160,"chars"],["Essay 500",500,"words"],["Blog 1,000",1000,"words"]];
+let G={limit:0,type:"words",pre:-1},hist=[],st=null;
+const rm=matchMedia("(prefers-reduced-motion:reduce)").matches;
+const syl=w=>{w=w.toLowerCase().replace(/[^a-z]/g,"");if(!w)return 0;if(w.length<=3)return 1;w=w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,"").replace(/^y/,"");const m=w.match(/[aeiouy]{1,2}/g);return m?m.length:1};
+const fmt=s=>s<60?Math.round(s)+" sec":Math.floor(s/60)+" min "+Math.round(s%60)+" sec";
+function tw(el,to,f=Math.round){const a=el._v||0;el._v=to;if(rm||Math.abs(to-a)<2){el.textContent=f(to).toLocaleString("en-IN");return}const t0=performance.now();(function s(n){const k=Math.min(1,(n-t0)/280);el.textContent=f(a+(to-a)*k).toLocaleString("en-IN");if(k<1)requestAnimationFrame(s)})(t0)}
+function toast(t){const e=$("ts");e.textContent=t;e.classList.add("s");setTimeout(()=>e.classList.remove("s"),1800)}
+function update(){
+  const t=tx.value,ws=t.match(/\S+/g)||[],W=ws.length,C=[...t].length,CN=t.replace(/\s/g,"").length;
+  const S=t.split(/[.!?…]+/).filter(x=>/\S/.test(x)).length,P=t.split(/\n\s*\n/).filter(x=>/\S/.test(x)).length;
+  const toks=(t.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu)||[]),uniq=new Set(toks).size;
+  const letters=toks.join("").length,al=toks.length?letters/toks.length:0,lw=toks.reduce((a,b)=>b.length>a.length?b:a,"");
+  tw($("w"),W);tw($("c"),C);tw($("cn"),CN);tw($("s"),S);tw($("p"),P);tw($("u"),uniq);
+  $("mw").textContent=W.toLocaleString("en-IN");$("mc").textContent=C.toLocaleString("en-IN");
+  $("rt").textContent=fmt(W/238*60);$("sp").textContent=fmt(W/150*60);$("al").textContent=al.toFixed(1);$("lw").textContent=lw||"—";
+  $("ln").textContent=t?t.split("\n").length+" lines":"";
+  /* keywords */
+  const cnt={};toks.forEach(w=>{if(w.length>2&&!STOP.has(w)&&!/^\d+$/.test(w))cnt[w]=(cnt[w]||0)+1});
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8),mx=top.length?top[0][1]:1;
+  $("kw").className=top.length?"":"mt";$("kw").innerHTML=top.length?top.map(([w,n])=>`<div class="kw"><span title="${w}">${w.replace(/[<>&]/g,"")}</span><i style="width:${n/mx*100}%"></i><b>${n}</b></div>`).join(""):"Keywords appear as you type.";
+  /* readability */
+  const lat=(t.match(/[A-Za-z]/g)||[]).length,all=(t.match(/\p{L}/gu)||[]).length;
+  if(W<10||!S){$("fs").textContent="—";$("fl").textContent="Write at least 10 words";$("fn").textContent="Flesch reading ease, English text"}
+  else if(lat<all*.6){$("fs").textContent="—";$("fl").textContent="Available for English text";$("fn").textContent="Flesch reading ease"}
+  else{const sy=ws.reduce((a,b)=>a+Math.max(1,syl(b)),0),f=Math.max(0,Math.min(100,206.835-1.015*(W/S)-84.6*(sy/W)));
+    $("fs").textContent=Math.round(f);$("fl").textContent=f>=80?"Easy to read":f>=60?"Plain English":f>=40?"Fairly difficult":"Difficult";$("fn").textContent="Flesch reading ease, English text"}
+  /* goal */
+  const pb=$("pb");
+  if(G.limit>0){const used=G.type==="words"?W:C,r=used/G.limit,left=G.limit-used,u=G.type==="words"?"words":"characters";
+    $("pf").style.width=Math.min(100,r*100)+"%";pb.className="pb"+(r>1?" x":r>=.9?" w":"");
+    $("pt").textContent=`${used.toLocaleString("en-IN")} / ${G.limit.toLocaleString("en-IN")} ${u} · ${left>=0?left.toLocaleString("en-IN")+" left":(-left).toLocaleString("en-IN")+" over the limit"}`}
+  else{$("pf").style.width="0";pb.className="pb";$("pt").textContent="Pick a preset or set a goal to track your limit."}
+  clearTimeout(st);st=setTimeout(()=>{try{localStorage.setItem("inkcount-draft",t);$("sv").textContent="Draft saved "+new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch(e){}},500)}
+/* presets and goal */
+function chips(){$("pr").innerHTML=PRE.map((p,i)=>`<button class="chip" data-i="${i}" aria-pressed="${G.pre===i}">${p[0]} · ${p[1].toLocaleString("en-IN")} ${p[2]==="words"?"words":"chars"}</button>`).join("")}
+$("pr").onclick=e=>{const b=e.target.closest("[data-i]");if(!b)return;const i=+b.dataset.i;if(G.pre===i){G={limit:0,type:"words",pre:-1}}else{G={limit:PRE[i][1],type:PRE[i][2],pre:i}}$("gn").value="";chips();update()};
+function custom(){const n=+$("gn").value;G={limit:n>0?n:0,type:$("gt").value,pre:-1};chips();update()}
+$("gn").oninput=custom;$("gt").onchange=()=>{if($("gn").value)custom()};
+/* tools */
+function apply(fn){hist.push(tx.value);if(hist.length>30)hist.shift();tx.value=fn(tx.value);update()}
+const A={up:s=>s.toUpperCase(),low:s=>s.toLowerCase(),title:s=>s.toLowerCase().replace(/(^|[\s\-(])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase()),sent:s=>s.toLowerCase().replace(/(^\s*|[.!?]\s+)(\p{L})/gu,(m,a,b)=>a+b.toUpperCase()),sp:s=>s.replace(/[ \t]+/g," ").replace(/ ?\n ?/g,"\n").replace(/\n{3,}/g,"\n\n").trim(),clear:()=>""};
+document.querySelector(".tools").onclick=e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
+  if(a==="undo"){if(hist.length){tx.value=hist.pop();update()}else toast("Nothing to undo");return}
+  if(a==="copy"){if(!tx.value){toast("Nothing to copy");return}tx.select();let ok=false;try{ok=document.execCommand("copy")}catch(x){}
+    (navigator.clipboard?navigator.clipboard.writeText(tx.value).then(()=>1,()=>ok):Promise.resolve(ok)).then(()=>toast("Copied to clipboard"));return}
+  if(a==="clear"&&!tx.value)return;apply(A[a])};
+tx.oninput=update;
+/* theme and restore */
+$("th").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark";try{localStorage.setItem("inkcount-theme",r.dataset.theme)}catch(e){}};
+try{const th=localStorage.getItem("inkcount-theme");if(th)document.documentElement.dataset.theme=th;const dr=localStorage.getItem("inkcount-draft");if(dr)tx.value=dr}catch(e){}
+chips();update();
+</script>
+</body>
+</html>
